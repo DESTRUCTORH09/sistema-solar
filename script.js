@@ -6,15 +6,18 @@ const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+// Controles orbitales
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 
+// Luz
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
 scene.add(ambientLight);
 const pointLight = new THREE.PointLight(0xffffff, 2, 5000);
 scene.add(pointLight);
 
+// Texturas
 const loader = new THREE.TextureLoader();
 const textures = {
   sun: loader.load('textures/sun.jpg'),
@@ -28,6 +31,7 @@ const textures = {
   neptune: loader.load('textures/neptune.jpg')
 };
 
+// Planetas
 const planetsData = [
   {name:'Mercurio', radius:5, distance:50, texture:textures.mercury, info:'El planeta más cercano al Sol.'},
   {name:'Venus', radius:8, distance:80, texture:textures.venus, info:'Segundo planeta, muy caliente.'},
@@ -41,11 +45,13 @@ const planetsData = [
 
 const planetMeshes = [];
 
+// Sol
 const sunGeometry = new THREE.SphereGeometry(30, 32, 32);
 const sunMaterial = new THREE.MeshBasicMaterial({map:textures.sun});
 const sun = new THREE.Mesh(sunGeometry, sunMaterial);
 scene.add(sun);
 
+// Crear planetas
 planetsData.forEach(data=>{
   const geo = new THREE.SphereGeometry(data.radius,32,32);
   const mat = new THREE.MeshStandardMaterial({map:data.texture});
@@ -56,6 +62,7 @@ planetsData.forEach(data=>{
   planetMeshes.push(mesh);
 });
 
+// Raycaster para click
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const infoPanel = document.getElementById('infoPanel');
@@ -75,12 +82,14 @@ window.addEventListener('click', e=>{
     planetInfoEl.textContent = planet.info;
     infoPanel.style.display = 'block';
 
+    // Mover cámara cerca del planeta
     const targetPos = intersects[0].object.position.clone();
     camera.position.set(targetPos.x + 50, targetPos.y + 50, targetPos.z + 100);
     controls.target.copy(targetPos);
   }
 });
 
+// Animación
 function animate(){
   requestAnimationFrame(animate);
   planetMeshes.forEach((mesh, i)=>{
@@ -92,6 +101,7 @@ function animate(){
 }
 animate();
 
+// Ajustar al tamaño de la ventana
 window.addEventListener('resize', ()=>{
   camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
